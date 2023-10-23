@@ -1,3 +1,6 @@
+% TODO: change consult to main file after
+:- consult('utils.pl').
+
 menu_title(Title) :-
     string_length(Title, Length),
     Length =< 46, !,
@@ -8,18 +11,22 @@ menu_opt(Opt) :-
     Length =< 46, !,
     format("* ~w~t~48| *", [Opt]).
 
-menu_space :-
+menu_spacer :-
     write("*                                                *").
 
 menu_border :-
     write("**************************************************").
 
 main_menu :-
+    repeat,
+    clear,
     menu_border, nl,
     menu_title("Main Menu"), nl,
-    menu_space, nl,
+    menu_spacer, nl,
     menu_opt("1. Start Game"), nl,
     menu_opt("2. How to Play"), nl,
     menu_opt("3. Exit"), nl,
     menu_border, nl,
-    write("Choose : ").
+    write("Choose : "),
+    read_number_between(1, 3, Opt),
+    write(Opt), nl.
