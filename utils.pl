@@ -19,5 +19,3 @@ read_number_between(Min, Max, X) :-
     read_number(X), !,
     X >= Min,
     X =< Max.
-
-clear :- write("\033[2J\033[1;1H").
