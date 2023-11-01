@@ -42,8 +42,8 @@ symbol(empty, ' ').
  * Predicate that displays the board
  */
 display_board(Board) :-
-    write('   | 0 | 1 | 2 | 3 |\n'),
-    write('--------------------\n'),
+    write('   | 0 | 1 | 2 | 3 |'), nl,
+    write('--------------------'), nl,
     display_board(Board, 0).
 
 /**
@@ -58,9 +58,8 @@ display_board([Row|Rest], N) :-
     write(' '),
     write(N),
     write(' | '),
-    display_row(Row),
-    write('\n'),
-    write('--------------------\n'),
+    display_row(Row), nl,
+    write('--------------------'), nl,
     N1 is N + 1,
     display_board(Rest, N1).
 

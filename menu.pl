@@ -1,6 +1,3 @@
-% TODO: change consult to main file after
-:- consult('utils.pl').
-
 /**
  * menu_title/1
  * menu_title(+Title)
@@ -8,7 +5,7 @@
  * Prints a title for a menu
  */
 menu_title(Title) :-
-    string_length(Title, Length),
+    atom_length(Title, Length),
     Length =< 46, !,
     format('* ~t~w~t~48| *', [Title]).
 
@@ -19,7 +16,7 @@ menu_title(Title) :-
  * Prints an option for a menu
  */
 menu_opt(Opt) :-
-    string_length(Opt, Length),
+    atom_length(Opt, Length),
     Length =< 46, !,
     format('* ~w~t~48| *', [Opt]).
 
@@ -56,7 +53,7 @@ main_menu :-
     menu_border, nl,
     write('Choose : '),
     read_number_between(1, 3, Opt),
-    switch_menu(Opt).
+    switch_menu(Opt), !.
 
 /**
  * switch_menu/1
@@ -64,9 +61,9 @@ main_menu :-
  *
  * Switches the menu based on the option
  */
-switch_menu(1) :- starting_game, !.
-switch_menu(2) :- instructions_menu, !.
-switch_menu(3) :- exit_game, !.
+switch_menu(1) :- start_game(red-computer).
+switch_menu(2) :- instructions_menu.
+switch_menu(3) :- exit_game.
 
 /**
  * instructions_menu/0
@@ -86,15 +83,8 @@ instructions_menu :-
     menu_opt('1. Back'), nl,
     menu_border, nl,
     write('Choose : '),
-    read_number_between(1, 1, _).
-
-/**
- * starting_game/0
- *
- * Starts the game
- */
-starting_game :-
-    write('Placeholder for starting game'), nl.
+    read_number_between(1, 1, _), !,
+    main_menu.
 
 /**
  * exit_game/0

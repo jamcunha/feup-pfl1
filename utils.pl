@@ -1,3 +1,5 @@
+:- use_module(library(lists)).
+
 /**
  * read_number/2
  * read_number(-X, +Acc)
@@ -45,7 +47,7 @@ read_number_between(Min, Max, X) :-
  *
  * Clears the screen.
  */
-clear :- write('\033[2J\033[1;1H').
+clear :- write('\e[H\e[2J').
 
 /**
  * list_get/3
@@ -62,13 +64,9 @@ list_get(List, Index, Value) :-
  *
  * Gets the element at (Row, Col) in Matrix.
  */
-matrix_get([_|T], Row, Col, Value) :-
-    Row > 0,
-    Row1 is Row - 1, !,
-    matrix_get(T, Row1, Col, Value).
-
-matrix_get([H|_], 0, Col, Value) :-
-    list_get(H, Col, Value), !.
+matrix_get(Matrix, Row, Col, Value) :-
+    nth0(Row, Matrix, RowList),
+    nth0(Col, RowList, Value).
 
 /**
  * list_replace/4

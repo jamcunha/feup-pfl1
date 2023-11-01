@@ -1,6 +1,7 @@
-:- consult('utils.pl').
-:- consult('menu.pl').
 :- consult('board.pl').
+:- consult('game.pl').
+:- consult('menu.pl').
+:- consult('utils.pl').
 
 /**
  * play/0
