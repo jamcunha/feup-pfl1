@@ -4,16 +4,30 @@
 % - Valid moves
 % - Move execution
 
+% game-state -> playing, win, lose, draw
 % state -> turn, against
 % turn -> blue, red
 % against -> human, computer
 
 start_game(Turn-Against) :-
     initial_board(Board),
-    new_turn(Board, Turn-Against).
+    switch_turn(Turn, StartTurn),
+    game(playing, Board, StartTurn-Against).
 
 switch_turn(blue, red).
 switch_turn(red, blue).
+
+game(playing, Board, Turn-Against) :-
+    switch_turn(Turn, NewTurn),
+    new_turn(Board, NewTurn-Against).
+
+game(win, Board, Turn-Against) :-
+    % TODO: add a pretty win screen (something like menu)
+    clear,
+    format('Player \'~w\' won!', [Turn]), nl, nl,
+    write('Press \'1\' to return to main menu: '),
+    read_number_between(1, 1, _),
+    main_menu.
 
 new_turn(Board, Turn-Against) :-
     clear,
@@ -29,8 +43,8 @@ new_turn(Board, Turn-Against) :-
         (validate_move(Row, Column, MoveRow, MoveColumn) ->
             nl, write('Move is valid'), nl,
             execute_move(Board, Row, Column, MoveRow, MoveColumn, NewBoard),
-            switch_turn(Turn, NewTurn),
-            new_turn(NewBoard, NewTurn-Against)
+            check_win(NewBoard, Turn, GameState), !,
+            game(GameState, NewBoard, Turn-Against)
         ;
             nl, write('Move is invalid, Choose another move'), nl, nl, fail
         )
@@ -56,6 +70,34 @@ validate_move(Row, Column, MoveRow, MoveColumn) :-
 execute_move(Board, Row, Column, MoveRow, MoveColumn, NewBoard) :-
     format('Moving from ~w, ~w to ~w, ~w', [Row, Column, MoveRow, MoveColumn]), nl,
     matrix_get(Board, Row, Column, Checker),
-    format('Checker is ~w', [Checker]), nl,
     matrix_replace(Board, Row, Column, empty, MiddleBoard),
     matrix_replace(MiddleBoard, MoveRow, MoveColumn, Checker, NewBoard).
+
+check_win(Board, Turn, GameState) :-
+    append(Board, FlatBoard),
+    count_checkers(FlatBoard, blue, BlueCount),
+    count_checkers(FlatBoard, red, RedCount), !,
+    (BlueCount =:= 0 ->
+        (Turn = blue ->
+            GameState = lose
+        ;
+            GameState = win
+        )
+    ;
+        RedCount =:= 0 ->
+            (Turn = red ->
+                GameState = lose
+            ;
+                GameState = win
+            )
+        ;
+            true
+    ).
+
+count_checkers([], _, 0).
+count_checkers([Checker|Rest], Checker, Count) :-
+    count_checkers(Rest, Checker, RestCount),
+    Count is RestCount + 1.
+
+count_checkers([_|Rest], Checker, Count) :-
+    count_checkers(Rest, Checker, Count).
