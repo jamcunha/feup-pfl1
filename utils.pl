@@ -91,3 +91,13 @@ matrix_replace([H|T], Row, Col, Value, [H|TR]) :-
 
 matrix_replace([H|T], 0, Col, Value, [HR|T]) :-
     list_replace(H, Col, Value, HR), !.
+
+/**
+ * matrix_member/2
+ * matrix_member(+Matrix, +Value)
+ *
+ * Checks if Value is a member of Matrix.
+ */
+matrix_member(Matrix, Value) :-
+    member(Row, Matrix),
+    member(Value, Row).

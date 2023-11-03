@@ -1,3 +1,56 @@
+% --------------- Refactoring ---------------
+
+% Game State -> (Board, Turn)
+% Move -> (Row, Column)-(MoveRow, MoveColumn)
+
+display_game(GameState) :-
+    GameState = (Board, Turn),
+    format('Turn: ~w', [Turn]), nl, nl,
+    display_board(Board).
+
+initial_state(Size, GameState) :-
+    % board is hardcoded 4x4, Size is not used
+    initial_board(Board),
+    GameState = (Board, red).
+
+move(GameState, Move, NewGameState) :-
+    GameState = (Board, Turn),
+    Move = (Row, Column)-(MoveRow, MoveColumn),
+    is_move_valid(GameState, Move),
+    move_checker(Board, Move, NewBoard),
+    switch_turn(Turn, NewTurn),
+    NewGameState = (NewBoard, NewTurn).
+
+is_move_valid(GameState, Move) :-
+    GameState = (Board, Turn),
+    Move = (Row, Column)-(MoveRow, MoveColumn),
+    matrix_get(Board, Row, Column, Checker),
+    Checker = Turn,
+    is_orthogonal(Row, Column, MoveRow, MoveColumn),
+    \+ matrix_get(Board, MoveRow, MoveColumn, empty).
+
+is_orthogonal(R1, C, R2, C) :- R1 =:= R2 + 1.
+is_orthogonal(R1, C, R2, C) :- R1 =:= R2 - 1.
+is_orthogonal(R, C1, R, C2) :- C1 =:= C2 + 1.
+is_orthogonal(R, C1, R, C2) :- C1 =:= C2 - 1.
+
+move_checker(Board, Move, NewBoard) :-
+    Move = (Row, Column)-(MoveRow, MoveColumn),
+    matrix_get(Board, Row, Column, Checker),
+    matrix_replace(Board, Row, Column, empty, MiddleBoard),
+    matrix_replace(MiddleBoard, MoveRow, MoveColumn, Checker, NewBoard).
+
+valid_moves(GameState, Moves) :-
+    % may need to '^' the GameState
+    findall(Move, valid_move(GameState, Move, _), Moves).
+
+game_over(GameState, Winner) :-
+    GameState = (Board, Turn),
+    \+ matrix_member(Board, Turn),
+    switch_turn(Turn, Winner).
+
+% ----------------- Working -----------------
+
 % To add:
 % - Game state
 % - Game over conditions
