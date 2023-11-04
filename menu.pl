@@ -61,7 +61,7 @@ main_menu :-
  *
  * Switches the menu based on the option
  */
-switch_menu(1) :- start_game(red-computer).
+switch_menu(1) :- start_game.
 switch_menu(2) :- instructions_menu.
 switch_menu(3) :- exit_game.
 
