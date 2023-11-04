@@ -29,10 +29,10 @@ is_move_valid(GameState, Move) :-
     is_orthogonal(Row, Column, MoveRow, MoveColumn),
     \+ matrix_get(Board, MoveRow, MoveColumn, empty).
 
-is_orthogonal(R1, C, R2, C) :- R1 =:= R2 + 1.
-is_orthogonal(R1, C, R2, C) :- R1 =:= R2 - 1.
-is_orthogonal(R, C1, R, C2) :- C1 =:= C2 + 1.
-is_orthogonal(R, C1, R, C2) :- C1 =:= C2 - 1.
+is_orthogonal(R1, C, R2, C) :- R2 is R1 + 1.
+is_orthogonal(R1, C, R2, C) :- R2 is R1 - 1.
+is_orthogonal(R, C1, R, C2) :- C2 is C1 + 1.
+is_orthogonal(R, C1, R, C2) :- C2 is C1 - 1.
 
 move_checker(Board, Move, NewBoard) :-
     Move = (Row, Column)-(MoveRow, MoveColumn),
@@ -42,7 +42,7 @@ move_checker(Board, Move, NewBoard) :-
 
 valid_moves(GameState, Moves) :-
     % may need to '^' the GameState
-    findall(Move, valid_move(GameState, Move, _), Moves).
+    findall(Move, move(GameState, Move, _), Moves).
 
 game_over(GameState, Winner) :-
     GameState = (Board, Turn),
