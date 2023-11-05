@@ -1,60 +1,52 @@
-% -------------------- IO --------------------
-
-read_row(Row) :-
-    write('Row: '),
-    read_number_between(0, 3, Row), !.
-
-read_row(Row) :-
-    write('Invalid Row, try again'), nl,
-    read_row(Row).
-
-read_column(Column) :-
-    write('Column: '),
-    read_number_between(0, 3, Column), !.
-
-read_column(Column) :-
-    write('Invalid column, try again'), nl,
-    read_column(Column).
-
-% --------------- Refactoring ---------------
-
 % Game State -> (Board, Turn)
 % Move -> (Row, Column)-(MoveRow, MoveColumn)
+
+read_row(Row, Size) :-
+    write('Row: '),
+    Temp is Size - 1,
+    read_number_between(0, Size, Row), !.
+
+read_row(Row, Size) :-
+    write('Invalid Row, try again'), nl,
+    read_row(Row, Size).
+
+read_column(Column, Size) :-
+    write('Column: '),
+    Temp is Size - 1,
+    read_number_between(0, Temp, Column), !.
+
+read_column(Column, Size) :-
+    write('Invalid column, try again'), nl,
+    read_column(Column, Size).
 
 switch_turn(blue, red).
 switch_turn(red, blue).
 
 display_game(GameState) :-
     clear,
-    GameState = (Board, Turn),
+    GameState = (Board, Turn, Size),
     format('Turn: ~w', [Turn]), nl, nl,
-    display_board(Board).
+    display_board(Board, Size).
 
 initial_state(Size, GameState) :-
-    % board is hardcoded 4x4, Size is not used
-    initial_board(Board),
-    GameState = (Board, red).
+    initial_board(Size, Board),
+    GameState = (Board, red, Size).
 
 move(GameState, Move, NewGameState) :-
-    GameState = (Board, Turn),
+    GameState = (Board, Turn, Size),
     Move = (Row, Column)-(MoveRow, MoveColumn),
     is_move_valid(GameState, Move),
     move_checker(Board, Move, NewBoard),
     switch_turn(Turn, NewTurn),
-    NewGameState = (NewBoard, NewTurn).
+    NewGameState = (NewBoard, NewTurn, Size).
 
 is_move_valid(GameState, Move) :-
-    GameState = (Board, Turn),
+    GameState = (Board, Turn, _),
     Move = (Row, Column)-(MoveRow, MoveColumn),
     matrix_get(Board, Row, Column, Checker),
     Checker = Turn,
     is_orthogonal(Row, Column, MoveRow, MoveColumn),
     \+ matrix_get(Board, MoveRow, MoveColumn, empty).
-
-is_orthogonal(R1, C, R2, C) :- R2 is R1 + 1.
-is_orthogonal(R1, C, R2, C) :- R2 is R1 - 1.
-is_orthogonal(R, C1, R, C2) :- C2 is C1 + 1.
-is_orthogonal(R, C1, R, C2) :- C2 is C1 - 1.
 
 move_checker(Board, Move, NewBoard) :-
     Move = (Row, Column)-(MoveRow, MoveColumn),
@@ -66,24 +58,28 @@ valid_moves(GameState, Moves) :-
     findall(Move, move(GameState, Move, _), Moves).
 
 game_over(GameState, Winner) :-
-    GameState = (Board, Turn),
+    GameState = (Board, Turn, _),
     \+ matrix_member(Board, Turn),
     switch_turn(Turn, Winner).
 
 % To have some parameter to know type of game (player vs player, player vs computer)
-start_game :-
-    initial_state(4, GameState),
+start_game(Size) :-
+    initial_state(Size, GameState),
     display_game(GameState),
     game_loop(GameState).
 
 game_loop(GameState) :-
     game_over(GameState, Winner),
+    GameState = (Board, _, Size),
+    clear,
+    display_board(Board, Size),
     nl, format('Game over! Winner: ~w', [Winner]), nl, nl,
     write('Press 1 to exit: '),
     read_number_between(1, 1, _), main_menu.
 
 game_loop(GameState) :-
-    nl, choose_move(Move),
+    GameState = (_, _, Size),
+    nl, choose_move(Size, Move),
     move(GameState, Move, NewGameState),
     display_game(NewGameState),
     game_loop(NewGameState).
@@ -92,10 +88,10 @@ game_loop(GameState) :-
     nl, write('Invalid move, try again'), nl,
     game_loop(GameState).
 
-choose_move((Row, Column)-(MoveRow, MoveColumn)) :-
+choose_move(Size, (Row, Column)-(MoveRow, MoveColumn)) :-
     write('Choose a checker to move'), nl,
-    read_row(Row),
-    read_column(Column),
+    read_row(Row, Size),
+    read_column(Column, Size),
     nl, write('Choose a place to move'), nl,
-    read_row(MoveRow),
-    read_column(MoveColumn).
+    read_row(MoveRow, Size),
+    read_column(MoveColumn, Size).
