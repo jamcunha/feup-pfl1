@@ -1,3 +1,5 @@
+:- use_module(library(random)).
+
 % Game State -> (Board, Turn)
 % Move -> (Row, Column)-(MoveRow, MoveColumn)
 
@@ -78,8 +80,33 @@ game_loop(GameState) :-
     read_number_between(1, 1, _), main_menu.
 
 game_loop(GameState) :-
-    GameState = (_, _, Size),
-    nl, choose_move(Size, Move),
+    valid_moves(GameState, Moves),
+    Moves = [],
+    GameState = (Board, Turn, Size),
+    switch_turn(Turn, NewTurn),
+    TempGameState = (Board, NewTurn, Size),
+    valid_moves(TempGameState, NewMoves),
+    NewMoves = [],
+    clear,
+    clear,
+    display_board(Board, Size),
+    nl, write('No more legal moves. Draw!'), nl,
+    write('Press 1 to exit: '),
+    read_number_between(1, 1, _), main_menu.
+
+game_loop(GameState) :-
+    valid_moves(GameState, Moves),
+    Moves = [],
+    write('No more legal moves. Skipping turn'), nl,
+    write('Press 1 to continue: '),
+    read_number_between(1, 1, _),
+    GameState = (Board, Turn, Size),
+    switch_turn(Turn, NewTurn),
+    game_loop((Board, NewTurn, Size)).
+
+game_loop(GameState) :-
+    nl, choose_move(GameState, Move, c),
+    % read_number_between(1, 1, _),
     move(GameState, Move, NewGameState),
     display_game(NewGameState),
     game_loop(NewGameState).
@@ -88,10 +115,16 @@ game_loop(GameState) :-
     nl, write('Invalid move, try again'), nl,
     game_loop(GameState).
 
-choose_move(Size, (Row, Column)-(MoveRow, MoveColumn)) :-
+choose_move((_, _, Size), (Row, Column)-(MoveRow, MoveColumn), p) :-
     write('Choose a checker to move'), nl,
     read_row(Row, Size),
     read_column(Column, Size),
     nl, write('Choose a place to move'), nl,
     read_row(MoveRow, Size),
     read_column(MoveColumn, Size).
+
+choose_move(GameState, Move, c) :-
+    % TODO: Problem when there are no valid moves
+    valid_moves(GameState, Moves),
+    random_member(Move, Moves),
+    format('Computer chose: ~w', [Move]), nl.
