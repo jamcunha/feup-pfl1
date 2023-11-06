@@ -76,7 +76,7 @@ main_menu :-
  * switch_menu/1
  * switch_menu(+Opt)
  *
- * Switches the menu based on the option
+ * Switches the menu based on the provided option
  */
 switch_menu(1) :- 
     menu_board_size(Size),
@@ -90,7 +90,7 @@ switch_menu(3).
  * menu_board_size/1
  * menu_board_size(-Size)
  *
- * Prints the board size menu
+ * Prints the board size menu. The size must be even and between 4 and 10
  */
 menu_board_size(Size) :-
     repeat,
@@ -123,7 +123,7 @@ menu_game_type(GameType) :-
  * switch_game_type/2
  * switch_game_type(+Opt, -GameType)
  *
- * Switches the game type based on the option
+ * Switches the game type based on the provided option
  */
 switch_game_type(1, p-p).
 switch_game_type(2, p-c).

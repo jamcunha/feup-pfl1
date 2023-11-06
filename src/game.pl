@@ -223,3 +223,33 @@ choose_move(GameState, c, Move) :-
     format('Computer chose: ~w', [Move]), nl,
     write('Press 1 to continue: '),
     read_number_between(1, 1, _).
+
+/**
+ * presentation_init_state/0
+ *
+ * Creates an initil game state for presentation purposes
+ */
+presentation_init_state :-
+    GameState = ([[red,blue,red,blue],[blue,red,blue,red],[red,blue,red,blue],[blue,red,blue,red]],red,4),
+    display_game(GameState),
+    game_loop(GameState, p-p, p).
+
+/**
+ * presentation_inter_state/0
+ *
+ * Creates an intermediate game state for presentation purposes
+ */
+presentation_inter_state :-
+    GameState = ([[empty,red,red,blue],[blue,red,empty,red],[red,empty,blue,blue],[blue,empty,empty,blue]],blue,4),
+    display_game(GameState),
+    game_loop(GameState, p-p, c).
+
+/**
+ * presentation_final_state/0
+ *
+ * Creates a final game state for presentation purposes
+ */
+presentation_final_state :-
+    GameState = ([[empty,red,empty,empty],[empty,empty,empty,empty],[empty,empty,empty,empty],[empty,empty,empty,empty]],blue,4),
+    display_game(GameState),
+    game_loop(GameState, p-p, p).
