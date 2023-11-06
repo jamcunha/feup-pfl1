@@ -64,13 +64,13 @@ game_over(GameState, Winner) :-
     \+ matrix_member(Board, Turn),
     switch_turn(Turn, Winner).
 
-% To have some parameter to know type of game (player vs player, player vs computer)
-start_game(Size) :-
+start_game(Size, P1-P2) :-
     initial_state(Size, GameState),
     display_game(GameState),
-    game_loop(GameState).
+    random_member(FirstPlayer, [P1, P2]),
+    game_loop(GameState, P1-P2, FirstPlayer).
 
-game_loop(GameState) :-
+game_loop(GameState, _, _) :-
     game_over(GameState, Winner),
     GameState = (Board, _, Size),
     clear,
@@ -79,7 +79,7 @@ game_loop(GameState) :-
     write('Press 1 to exit: '),
     read_number_between(1, 1, _), main_menu.
 
-game_loop(GameState) :-
+game_loop(GameState, _, _) :-
     valid_moves(GameState, Moves),
     Moves = [],
     GameState = (Board, Turn, Size),
@@ -88,13 +88,12 @@ game_loop(GameState) :-
     valid_moves(TempGameState, NewMoves),
     NewMoves = [],
     clear,
-    clear,
     display_board(Board, Size),
     nl, write('No more legal moves. Draw!'), nl,
     write('Press 1 to exit: '),
     read_number_between(1, 1, _), main_menu.
 
-game_loop(GameState) :-
+game_loop(GameState, GameType, Player) :-
     valid_moves(GameState, Moves),
     Moves = [],
     write('No more legal moves. Skipping turn'), nl,
@@ -102,18 +101,35 @@ game_loop(GameState) :-
     read_number_between(1, 1, _),
     GameState = (Board, Turn, Size),
     switch_turn(Turn, NewTurn),
-    game_loop((Board, NewTurn, Size)).
+    game_loop((Board, NewTurn, Size), GameType, Player).
 
-game_loop(GameState) :-
-    nl, choose_move(GameState, Move, c),
-    % read_number_between(1, 1, _),
+game_loop(GameState, p-p, _) :-
+    nl, choose_move(GameState, Move, p),
     move(GameState, Move, NewGameState),
     display_game(NewGameState),
-    game_loop(NewGameState).
+    game_loop(NewGameState, p-p, p).
 
-game_loop(GameState) :-
+game_loop(GameState, p-c, p) :-
+    nl, choose_move(GameState, Move, p),
+    move(GameState, Move, NewGameState),
+    display_game(NewGameState),
+    game_loop(NewGameState, p-c, c).
+
+game_loop(GameState, p-c, c) :-
+    nl, choose_move(GameState, Move, c),
+    move(GameState, Move, NewGameState),
+    display_game(NewGameState),
+    game_loop(NewGameState, p-c, p).
+
+game_loop(GameState, c-c, _) :-
+    nl, choose_move(GameState, Move, c),
+    move(GameState, Move, NewGameState),
+    display_game(NewGameState),
+    game_loop(NewGameState, GameType, c).
+
+game_loop(GameState, GameType, Player) :-
     nl, write('Invalid move, try again'), nl,
-    game_loop(GameState).
+    game_loop(GameState, GameType, Player).
 
 choose_move((_, _, Size), (Row, Column)-(MoveRow, MoveColumn), p) :-
     write('Choose a checker to move'), nl,
@@ -124,7 +140,8 @@ choose_move((_, _, Size), (Row, Column)-(MoveRow, MoveColumn), p) :-
     read_column(MoveColumn, Size).
 
 choose_move(GameState, Move, c) :-
-    % TODO: Problem when there are no valid moves
     valid_moves(GameState, Moves),
     random_member(Move, Moves),
-    format('Computer chose: ~w', [Move]), nl.
+    format('Computer chose: ~w', [Move]), nl,
+    write('Press 1 to continue: '),
+    read_number_between(1, 1, _).

@@ -78,9 +78,56 @@ main_menu :-
  *
  * Switches the menu based on the option
  */
-switch_menu(1) :- start_game(4).
+switch_menu(1) :- 
+    menu_board_size(Size),
+    menu_game_type(GameType),
+    start_game(Size, GameType).
+
 switch_menu(2) :- instructions_menu.
-switch_menu(3) :- exit_game.
+switch_menu(3).
+
+/**
+ * menu_board_size/1
+ * menu_board_size(-Size)
+ *
+ * Prints the board size menu
+ */
+menu_board_size(Size) :-
+    repeat,
+    clear,
+    write('Choose the board size (NxN): '),
+    read_number_between(4, 10, Size),
+    Size mod 2 =:= 0.
+
+/**
+ * menu_game_type/1
+ * menu_game_type(-GameType)
+ *
+ * Prints the game type menu
+ */
+menu_game_type(GameType) :-
+    repeat,
+    clear,
+    menu_border, nl,
+    menu_title('Game Type'), nl,
+    menu_spacer, nl,
+    menu_opt('1. Player vs Player'), nl,
+    menu_opt('2. Player vs Computer'), nl,
+    menu_opt('3. Computer vs Computer'), nl,
+    menu_border, nl,
+    write('Choose : '),
+    read_number_between(1, 3, Opt),
+    switch_game_type(Opt, GameType), !.
+
+/**
+ * switch_game_type/2
+ * switch_game_type(+Opt, -GameType)
+ *
+ * Switches the game type based on the option
+ */
+switch_game_type(1, p-p).
+switch_game_type(2, p-c).
+switch_game_type(3, c-c).
 
 /**
  * instructions_menu/0
@@ -129,11 +176,3 @@ instructions_menu :-
     write('Choose : '),
     read_number_between(1, 1, _), !,
     main_menu.
-
-/**
- * exit_game/0
- *
- * Exits the game
- */
-exit_game :-
-    write('Placeholder for exiting game'), nl.
